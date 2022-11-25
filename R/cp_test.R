@@ -12,14 +12,20 @@
 #' p_value <- cp_test(fit)
 #' p_value
 cp_test <- function(object, n_sim = 1000){
-  formula <- as.formula(paste0("sim_1~", str_split(deparse(object$null_model$formula), "~", simplify = TRUE)[2]))
+  formula <- as.formula(paste0("sim_response~", str_split(deparse(object$null_model$formula), "~", simplify = TRUE)[2]))
   sim_Fstat <- function() {
-    sim_data <- cbind(object$null_model$data, simulate(object$null_model))
-    fit <- lm_cp(formula, data = sim_data,
+    sim_response <- simulate(object$null_model)
+    idx <- as.numeric(rownames(sim_response))
+    data <- object$null_model$data
+    data$sim_response <- NA
+    data$sim_response[idx] <- sim_response[["sim_1"]]
+    fit <- lm_cp(formula, data = data,
                  cp_var = object$cp_var)
     fit$cp_Fstat
   }
   Fstat <- replicate(n_sim, sim_Fstat())
-  cat(paste("Approximate P-value based on", n_sim, "Monte-Carlo iterations:\n"))
-  mean(Fstat > object$cp_Fstat)
+  p <- mean(Fstat > object$cp_Fstat)
+  class(p) <- "lmcp_pvalue"
+  attr(p, "n_sim") <- n_sim
+  p
 }

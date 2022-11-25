@@ -33,3 +33,13 @@ print.summary.lmcp <- function(object, ...){
   cat(paste0("\nOptimal change-point found at ", object$cp_var, "=", object$change_point, ", with coefficients: \n"))
   printCoefmat(object$cp_coefficients)
 }
+
+#' Generic
+#'
+#' @param object An object of class lmcp_pvalue
+#' @export
+print.lmcp_pvalue <- function(object, ...){
+  cat(paste("Approximate P-value based on", attr(object, "n_sim"), "Monte-Carlo iterations:\n",   as.numeric(p_value)
+))
+}
+
