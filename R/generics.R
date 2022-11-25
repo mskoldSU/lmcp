@@ -39,7 +39,7 @@ print.summary.lmcp <- function(object, ...){
 #' @param object An object of class lmcp_pvalue
 #' @export
 print.lmcp_pvalue <- function(object, ...){
-  cat(paste("Approximate P-value based on", attr(object, "n_sim"), "Monte-Carlo iterations:\n",   as.numeric(p_value)
+  cat(paste("Approximate P-value based on", attr(object, "n_sim"), "Monte-Carlo iterations:\n",   as.numeric(object)
 ))
 }
 
