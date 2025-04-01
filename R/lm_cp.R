@@ -34,7 +34,7 @@ lm_cp <- function(formula, data, cp_var = NULL, cp_values = NULL, ...){
     cp_values <- cp_var_values[3]:cp_var_values[length(cp_var_values) - 2]
   }
   replacements <- paste0("bs(", cp_var, ", degree = 1, knots = ", cp_values, ")")
-  formulas <- str_replace(deparse(formula), cp_var, replacements)
+  formulas <- str_replace_all(deparse(formula), cp_var, replacements)
   fits <- lapply(formulas, function(f) lm(f, data = data, ...))
   RSS <- sapply(fits, function(fit) sum(fit$residuals^2))
   RSS0 <- sum(fit0$residuals^2)
@@ -54,7 +54,11 @@ lm_cp <- function(formula, data, cp_var = NULL, cp_values = NULL, ...){
 
   # Change-points trends
   bs_slopes <- c(1 / (cp - cp_range[1]), 1 / (cp_range[2] - cp))
-  A <- matrix(c(1, 0, 0, 0, bs_slopes[1], -bs_slopes[2], 0, 0, bs_slopes[2]), nrow = 3)
+  A <- diag(fit$rank)
+  A[2, 2] <- bs_slopes[1]
+  A[3, 2] <- -bs_slopes[2]
+  A[3, 3] <- bs_slopes[2]
+  # A <- matrix(c(1, 0, 0, 0, bs_slopes[1], -bs_slopes[2], 0, 0, bs_slopes[2]), nrow = 3)
   covmat <- A %*% vcov(fit) %*% t(A)
   cp_coeff <- as.numeric(A %*% coefficients(fit))
   se <- sqrt(diag(covmat))
